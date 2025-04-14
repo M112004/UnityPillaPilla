@@ -8,19 +8,18 @@ public class AISeekState : BaseState
     [SerializeField] private float steeringMaxSpeed;
     public override void Construct()
     {
-        
+        aiBehaviour.maxSpeed = seekMaxSpeed;
+        aiBehaviour.steeringMaxSpeed = steeringMaxSpeed;
     }
 
     public override void Transition()
     {
-        if(m_enemyAIStateMotor.stateEnum == AIState.Flee)
-            m_enemyAIStateMotor.ChangeState(GetComponent<AIFleeState>());
-        /*if (m_enemyAIStateMotor.isPlayerOnSight) return;
-        m_enemyAIStateMotor.ChangeState(GetComponent<AIPatrolState>());*/
+        if (m_enemyAIStateMotor.stateEnum == AIState.Seek) return;
+        base.Transition();
     }
 
     public override void FixedUpdateState()
     {
-        
+        aiBehaviour.Seek(m_enemyAIStateMotor.target.position, m_enemyAIStateMotor.rb);
     }
 }
