@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro; // Added TextMeshPro namespace
 
 public class GameManager : MonoBehaviour
 {
@@ -22,11 +22,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float minDistanceFromPlayer = 5f;
 
     [Header("UI References")]
-    [SerializeField] private Text scoreText;
-    [SerializeField] private Text phaseText;
-    [SerializeField] private Text timerText;
+    [SerializeField] private TMP_Text scoreText; // Changed to TMP_Text
+    [SerializeField] private TMP_Text phaseText; // Changed to TMP_Text
+    [SerializeField] private TMP_Text timerText; // Changed to TMP_Text
     [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private Text finalScoreText;
+    [SerializeField] private TMP_Text finalScoreText; // Changed to TMP_Text
 
     [HideInInspector] public bool isPaused = false;
     [HideInInspector] public bool isGameOver = false;
