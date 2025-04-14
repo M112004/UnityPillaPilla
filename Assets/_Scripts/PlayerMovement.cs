@@ -47,8 +47,12 @@ public class PlayerMovement : MonoBehaviour
         float horizontalInput = Input.GetAxisRaw("Horizontal");
         float verticalInput = Input.GetAxisRaw("Vertical");
 
-        // Create movement vector (adjust these axes based on your camera orientation)
-        moveDirection = new Vector3(horizontalInput, 0f, verticalInput).normalized;
+        // Transform standard input to isometric direction
+        Vector3 right = new Vector3(-1f, 0f, 1f).normalized; // Changed to fix left/right
+        Vector3 forward = new Vector3(-1f, 0f, -1f).normalized;
+
+        // Calculate movement based on isometric axes
+        moveDirection = (right * horizontalInput + forward * verticalInput).normalized;
 
         // Handle sprint
         if (Input.GetKey(KeyCode.LeftShift))
