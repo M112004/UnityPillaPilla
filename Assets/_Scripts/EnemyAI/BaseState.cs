@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class BaseState : MonoBehaviour/*, ITriggerTarget, ITriggerExitable*/
 {
     [SerializeField] protected EnemyAIStateMotor m_enemyAIStateMotor;
-    [SerializeField] protected AIBehaviour aiBehaviour;
+    [SerializeField] public AIBehaviour aiBehaviour;  // Cambiar de protected a public
 
     private void Awake()
     {

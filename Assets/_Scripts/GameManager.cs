@@ -173,31 +173,84 @@ public class GameManager : MonoBehaviour
         {
             float x = Random.Range(-spawnAreaWidth / 2, spawnAreaWidth / 2);
             float z = Random.Range(-spawnAreaHeight / 2, spawnAreaHeight / 2);
-            spawnPosition = new Vector3(x, 0, z);
+            float y = 3f; // Altura desde donde caerán los enemigos
+            spawnPosition = new Vector3(x, y, z);
             attempts++;
         }
-        while (Vector3.Distance(spawnPosition, playerTransform.position) < minDistanceFromPlayer && attempts < 30);
+        while (Vector3.Distance(new Vector3(spawnPosition.x, 0, spawnPosition.z), playerTransform.position) < minDistanceFromPlayer && attempts < 30);
 
         // Instantiate enemy
         GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-        enemies.Add(enemy);
+
+        // Buscar el componente en el objeto hijo
+        EnemyAIStateMotor motor = enemy.GetComponentInChildren<EnemyAIStateMotor>();
+
+        if (motor == null)
+        {
+            Debug.LogError("EnemyAIStateMotor component not found on enemy or its children!");
+            Destroy(enemy);
+            return;
+        }
+
+        // Asegúrate de que el Rigidbody use gravedad para la caída
+        Rigidbody rb = motor.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.useGravity = true;
+
+            // Una vez que toque el suelo, desactivaremos la gravedad
+            StartCoroutine(DisableGravityAfterLanding(rb));
+        }
 
         // Set target to player
-        EnemyAIStateMotor motor = enemy.GetComponent<EnemyAIStateMotor>();
-        if (motor != null)
-        {
-            motor.target = playerTransform;
-            motor.stateEnum = isFleePhase ? AIState.Flee : AIState.Seek;
+        motor.target = playerTransform;
+        motor.stateEnum = isFleePhase ? AIState.Flee : AIState.Seek;
 
-            // Set initial state
-            if (isFleePhase)
+        // Update state accordingly
+        if (isFleePhase)
+        {
+            AIFleeState fleeState = motor.GetComponent<AIFleeState>();
+            if (fleeState != null)
             {
-                motor.ChangeState(enemy.GetComponent<AIFleeState>());
+                motor.ChangeState(fleeState);
             }
-            else
+        }
+        else
+        {
+            AISeekState seekState = motor.GetComponent<AISeekState>();
+            if (seekState != null)
             {
-                motor.ChangeState(enemy.GetComponent<AISeekState>());
+                motor.ChangeState(seekState);
             }
+        }
+
+        enemies.Add(enemy);
+    }
+
+    // Corrutina para desactivar la gravedad después de que el enemigo toque el suelo
+    private IEnumerator DisableGravityAfterLanding(Rigidbody rb)
+    {
+        if (rb == null) yield break;
+
+        // Espera a que la posición Y esté cerca de 0 (o el nivel del suelo)
+        float groundLevel = 0f; // Ajusta esto según la altura real de tu plano
+        float threshold = 0.1f;
+
+        while (rb != null && Mathf.Abs(rb.transform.position.y - groundLevel) > threshold)
+        {
+            yield return null;
+        }
+
+        // Una vez en el suelo, desactivamos la gravedad y fijamos restricciones
+        if (rb != null)
+        {
+            rb.useGravity = false;
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Elimina movimiento vertical
+            rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
+
+            // Asegúrate de que la posición Y sea exactamente la del suelo
+            Vector3 pos = rb.transform.position;
+            rb.transform.position = new Vector3(pos.x, groundLevel, pos.z);
         }
     }
 
