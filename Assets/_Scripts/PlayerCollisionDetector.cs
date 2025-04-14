@@ -7,7 +7,6 @@ public class PlayerCollisionDetector : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Check if we collided with an AI enemy
         EnemyAIStateMotor enemyAI = collision.gameObject.GetComponent<EnemyAIStateMotor>();
         if (enemyAI == null)
         {
@@ -16,7 +15,6 @@ public class PlayerCollisionDetector : MonoBehaviour
 
         if (enemyAI != null)
         {
-            Debug.Log($"Player detected collision with AI: {collision.gameObject.name}");
 
             if (gameManager != null)
             {
@@ -24,7 +22,7 @@ public class PlayerCollisionDetector : MonoBehaviour
             }
             else
             {
-                Debug.LogError("GameManager reference is missing in PlayerCollisionDetector!");
+                Debug.LogError("GameManager reference missing");
             }
         }
     }

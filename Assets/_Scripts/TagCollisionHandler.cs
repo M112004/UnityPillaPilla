@@ -5,9 +5,8 @@ using UnityEngine;
 public class TagCollisionHandler : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
-    [SerializeField] private string targetTag = "Player"; // The tag of the object we want to detect collisions with
+    [SerializeField] private string targetTag = "Player"; 
 
-    // Try both trigger and collision methods to ensure we catch the interaction
     private void OnTriggerEnter(Collider other)
     {
         CheckCollision(other);
@@ -22,16 +21,14 @@ public class TagCollisionHandler : MonoBehaviour
     {
         if (other.CompareTag(targetTag))
         {
-            Debug.Log($"Tag collision detected between {gameObject.name} and {other.gameObject.name}");
 
-            // Notify the game manager that a tag occurred
             if (gameManager != null)
             {
                 gameManager.HandleTagCollision();
             }
             else
             {
-                Debug.LogError("GameManager reference is missing in TagCollisionHandler!");
+                Debug.LogError("GameManager reference missing");
             }
         }
     }

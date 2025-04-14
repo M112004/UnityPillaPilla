@@ -27,10 +27,8 @@ public class SetupColliders : MonoBehaviour
 
         if (playerCollider != null)
         {
-            // Make sure the player has the correct tag
             player.tag = "Player";
 
-            // Set up player collider for proper collision detection
             playerCollider.isTrigger = false;
 
             Debug.Log($"Player collider set up: {playerCollider.name}");
@@ -57,7 +55,6 @@ public class SetupColliders : MonoBehaviour
 
         if (aiCollider != null)
         {
-            // Set up AI collider for proper collision detection
             aiCollider.isTrigger = false;
 
             Debug.Log($"AI collider set up: {aiCollider.name}");

@@ -27,18 +27,15 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Initialize the game
         remainingTime = gameTime;
         gameRunning = true;
 
-        // Hide game over text at the start
         if (gameOverText != null)
         {
             gameOverText.gameObject.SetActive(false);
             winnerText.gameObject.SetActive(false);
         }
 
-        // Get the EnemyAIStateMotor component from aiEnemy
         if (aiEnemy != null)
         {
             aiStateMotor = aiEnemy.GetComponent<EnemyAIStateMotor>();
@@ -46,19 +43,17 @@ public class GameManager : MonoBehaviour
             if (aiStateMotor != null)
             {
                 aiStateMotor.stateEnum = AIState.Seek;
-                Debug.Log("Game started! AI is seeking the player.");
             }
             else
             {
-                Debug.LogError("EnemyAIStateMotor component not found on aiEnemy!");
+                Debug.LogError("EnemyAIStateMotor component not found on aiEnemy");
             }
         }
         else
         {
-            Debug.LogError("AI Enemy reference is missing!");
+            Debug.LogError("AI Enemy reference is missing");
         }
 
-        // Initialize the timer display
         UpdateTimerDisplay();
     }
 
@@ -66,19 +61,16 @@ public class GameManager : MonoBehaviour
     {
         if (!gameRunning) return;
 
-        // Update game timer
         remainingTime -= Time.deltaTime;
 
-        // Update the timer display
         UpdateTimerDisplay();
 
-        // Check if we need to announce the time
         int timeToAnnounce = Mathf.FloorToInt(remainingTime);
         if (timeToAnnounce % 5 == 0 && timeToAnnounce > 0)
         {
             if (!announcedTime)
             {
-                Debug.Log($"Time remaining: {timeToAnnounce} seconds");
+                Debug.Log($"Time remaining: {timeToAnnounce}");
                 announcedTime = true;
             }
         }
@@ -87,7 +79,6 @@ public class GameManager : MonoBehaviour
             announcedTime = false;
         }
 
-        // Check if game is over
         if (remainingTime <= 0)
         {
             EndGame();
@@ -100,38 +91,32 @@ public class GameManager : MonoBehaviour
         {
             int minutes = Mathf.FloorToInt(remainingTime / 60);
             int seconds = Mathf.FloorToInt(remainingTime % 60);
-            timerText.text = $"Time: {minutes:00}:{seconds:00}";
+            timerText.text = $"Tiempo: {minutes:00}:{seconds:00}";
         }
     }
 
-    // Call this when the player and AI collide
     public void HandleTagCollision()
     {
         if (!gameRunning || aiStateMotor == null || collisionHandled) return;
 
-        // Set flag to prevent multiple collision handling
         collisionHandled = true;
 
-        // Switch roles
         if (aiStateMotor.stateEnum == AIState.Seek)
         {
             aiStateMotor.stateEnum = AIState.Flee;
-            Debug.Log("Player was tagged! AI is now fleeing.");
+            Debug.Log("Player pillado.");
         }
         else
         {
             aiStateMotor.stateEnum = AIState.Seek;
-            Debug.Log("AI was tagged! AI is now seeking.");
+            Debug.Log("IA pillada.");
         }
 
-        // Reset the collision handled flag after a short delay
-        // (to prevent immediate re-collision detection)
         StartCoroutine(ResetCollisionFlag());
     }
 
     private IEnumerator ResetCollisionFlag()
     {
-        // Wait a short time to prevent immediate collision detection
         yield return new WaitForSeconds(0.5f);
         collisionHandled = false;
     }
@@ -140,23 +125,20 @@ public class GameManager : MonoBehaviour
     {
         gameRunning = false;
 
-        // Stop all movement
         FreezeAllMovement();
 
-        // Determine the winner based on AI state
         string winnerMessage;
         if (aiStateMotor != null && aiStateMotor.stateEnum == AIState.Flee)
         {
-            winnerMessage = "AI wins!";
+            winnerMessage = "AI gana!";
             Debug.Log(winnerMessage);
         }
         else
         {
-            winnerMessage = "Player wins!";
+            winnerMessage = "Jugador gana!";
             Debug.Log(winnerMessage);
         }
 
-        // Display game over message on UI
         if (gameOverText != null)
         {
             timerText.gameObject.SetActive(false);
@@ -168,17 +150,15 @@ public class GameManager : MonoBehaviour
 
     private void FreezeAllMovement()
     {
-        // Freeze player movement
         if (player != null)
         {
             Rigidbody playerRb = player.GetComponent<Rigidbody>();
             if (playerRb != null)
             {
                 playerRb.velocity = Vector3.zero;
-                playerRb.isKinematic = true; // Prevent physics from affecting the player
+                playerRb.isKinematic = true; 
             }
 
-            // Disable player's movement script
             PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
             if (playerMovement != null)
             {
@@ -186,17 +166,15 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Freeze AI movement
         if (aiEnemy != null)
         {
             Rigidbody aiRb = aiEnemy.GetComponent<Rigidbody>();
             if (aiRb != null)
             {
                 aiRb.velocity = Vector3.zero;
-                aiRb.isKinematic = true; // Prevent physics from affecting the AI
+                aiRb.isKinematic = true; 
             }
 
-            // Disable AI's behavior components
             AIBehaviour aiBehavior = aiEnemy.GetComponent<AIBehaviour>();
             if (aiBehavior != null)
             {
