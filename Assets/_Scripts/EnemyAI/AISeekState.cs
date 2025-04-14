@@ -6,34 +6,46 @@ public class AISeekState : BaseState
 {
     [SerializeField] private float seekMaxSpeed;
     [SerializeField] private float steeringMaxSpeed;
-    // En AISeekState.cs y AIFleeState.cs
+
+    // Flag que indica si ya ha aterrizado
+    private bool hasLanded = false;
+
     public override void Construct()
     {
-        // Configuración original
-        aiBehaviour.maxSpeed = seekMaxSpeed; // o fleeMaxSpeed en AIFleeState
+        // Configuración de velocidad para buscar al jugador
+        aiBehaviour.maxSpeed = seekMaxSpeed;
         aiBehaviour.steeringMaxSpeed = steeringMaxSpeed;
 
-        // Esperar a que el enemigo toque el suelo antes de comenzar a moverse
+        // Reiniciamos el flag de aterrizaje
+        hasLanded = false;
+        // Esperamos a que el enemigo toque el suelo antes de comenzar a moverse
         StartCoroutine(WaitForLanding());
     }
 
     private IEnumerator WaitForLanding()
     {
-        // Espera hasta que el objeto esté cerca del suelo
         float groundLevel = 0f;
         float threshold = 0.1f;
 
+        // Espera hasta que la posición en Y esté cerca del suelo
         while (Mathf.Abs(transform.position.y - groundLevel) > threshold)
         {
             yield return null;
         }
 
-        // Ahora que está en el suelo, podemos asegurarnos de que las restricciones son correctas
+        // Alineamos la posición al nivel del suelo
+        Vector3 pos = transform.position;
+        transform.position = new Vector3(pos.x, groundLevel, pos.z);
+
+        // Desactivamos la gravedad y congelamos la posición Y y las rotaciones
         if (m_enemyAIStateMotor.rb != null)
         {
             m_enemyAIStateMotor.rb.useGravity = false;
             m_enemyAIStateMotor.rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
         }
+
+        // Indicamos que ya se ha aterrizado y se puede mover
+        hasLanded = true;
     }
 
     public override void Transition()
@@ -44,6 +56,10 @@ public class AISeekState : BaseState
 
     public override void FixedUpdateState()
     {
+        // Si el enemigo aún no ha aterrizado, no se mueve
+        if (!hasLanded)
+            return;
+
         if (m_enemyAIStateMotor.target == null)
         {
             Debug.LogWarning("No target assigned to enemy!");
@@ -56,7 +72,7 @@ public class AISeekState : BaseState
             return;
         }
 
-        // El resto del código...
+        // Se llama al método Seek del AIBehaviour para moverse hacia el jugador
         aiBehaviour.Seek(m_enemyAIStateMotor.target.position, m_enemyAIStateMotor.rb);
     }
 }
